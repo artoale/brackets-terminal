@@ -1,0 +1,50 @@
+@font-face {
+    font-family:'PT Mono';
+    font-style: normal;
+    font-weight: 400;
+    src: local('PT Mono'), url(fonts/ptmono.ttf);
+}
+#brackets-terminal {
+    position: relative;
+    background-color: #312f29;
+    border-top-color: rgb(206, 206, 206);
+    width: 100%;
+}
+#brackets-terminal pre {
+    background-color:black;
+}
+.terminal {
+    width: 100%;
+    border: #000 solid 5px;
+    font-family:'Oxygen Mono', monospace;
+    font-size: 15px;
+    font-weight: bold;
+    color: #fff;
+    background-color: #312f29;
+}
+.reverse-video {
+    color: #000;
+    background: #f0f0f0;
+}
+#terminal-icon {
+    content:"";
+    background: url("images/logoShell.svg") 0 0 no-repeat;
+}
+#terminal-icon.not-running {
+    background-position: 0 0;
+}
+#terminal-icon.connected {
+    background-position: 0 -24px;
+}
+#terminal-icon.not-connected {
+    background-position: 0 -120px;
+}
+#terminal-icon.active {
+    background-position: 0 -72px;
+}
+#terminal-icon.not-active {
+    background-position: 0 -96px;
+}
+#terminal-icon.error {
+    background-position: 0 -120px;
+}

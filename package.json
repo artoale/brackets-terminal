@@ -1,0 +1,18 @@
+{
+    "name": "bracket-terminal",
+    "version": "0.1.0",
+    "description": "Open a terminal inside Brackets",
+    "main": "main.js",
+    "homepage": "https://github.com/artoale/brackets-terminal",
+    "keywords": [
+        "terminal",
+        "bash",
+        "zsh",
+        "tty"
+    ],
+    "author": "Alessandro Artoni <artoale@gmail.com> (http://artoale.com)",
+    "license": "MIT",
+    "engines": {
+        "brackets": ">=0.31.0"
+    }
+}

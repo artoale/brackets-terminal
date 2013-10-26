@@ -19,8 +19,9 @@ define(function (require, exports, module) {
         this.shellName = data.process;
 
         this.socket.on('kill', function () {
+            this.clear();
             $(this).trigger('killed');
-        });
+        }.bind(this));
 
         this.socket.on('disconnect', function () {
             this.clear();
@@ -30,7 +31,7 @@ define(function (require, exports, module) {
 
         this.socket.on('reconnect_failed', function () {
             this.clear();
-//            this.clearHandler();
+            //            this.clearHandler();
         });
 
         $(this).trigger('created', this.terminal);
@@ -113,7 +114,11 @@ define(function (require, exports, module) {
             host = 'http://localhost:8080';
         }
         if (this.socket) {
-            this.socket.socket.connect();
+            if (!this.socket.socket.connected) {
+                this.socket.socket.connect();
+            } else {
+//                $(this).trigger('connected');
+            }
             return;
         }
         this.socket = io.connect(host, {
@@ -123,9 +128,6 @@ define(function (require, exports, module) {
             this.clear();
             $(this).trigger('notConnected');
         }.bind(this));
-
-
-
         this.socket.on('connect', this.connectHandler.bind(this));
     };
 

@@ -87,6 +87,7 @@ define(function (require, exports, module) {
         } else if (toolbarManager.status === toolbarManager.CONNECTED) {
             console.log('CONNECTED ACTION');
             //manca un terminale vero e proprio?
+            terminalManager.createTerminal();
         } else if (toolbarManager.status === toolbarManager.ERROR) {
             console.log('ERROR ACTION');
             //Nulla da fare, siamo nella cacca
@@ -132,7 +133,7 @@ define(function (require, exports, module) {
         });
 
         $(terminalManager).on('killed', function () {
-            toolbarManager.setStatus(toolbarManager.NOT_RUNNING);
+            toolbarManager.setStatus(toolbarManager.CONNECTED);
             togglePanel('close');
         });
         $(terminalManager).on('created', function () {

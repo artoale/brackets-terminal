@@ -1,5 +1,6 @@
 {
-    "name": "Brackets Terminal",
+    "name": "brackets-terminal",
+    "title": "Brackets Terminal",
     "version": "0.1.0",
     "description": "Open a terminal inside Brackets",
     "main": "main.js",

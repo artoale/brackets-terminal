@@ -53,7 +53,9 @@ define(function (require, exports, module) {
 
 
     function resize() {
-        terminalManager.handleResize($bashPanel);
+        if (_visible) {
+            terminalManager.handleResize($bashPanel);
+        }
     }
 
     function init() {

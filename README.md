@@ -7,7 +7,7 @@ Ever wanted a real console inside your editor? This plugin is what you need!
 
 You can also run another editor inside brackets!
 
-![Nano](images/screenshot_2.png)
+![Nano](images/screenshot2.png)
 
 
 ##Installation

@@ -1,0 +1,61 @@
+/*jslint vars: true, plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
+/*global define, $, brackets, Mustache */
+
+define(function (require, exports) {
+    "use strict";
+
+    var PreferencesManager = brackets.getModule("preferences/PreferencesManager"),
+        Dialogs = brackets.getModule("widgets/Dialogs"),
+        dialogTemplate = require("text!htmlContent/settings-dialog.html");
+
+    var TERMINAL_SETTINGS_CLIENT_ID = "bracketsTerminal.settings";
+
+    var settings;
+    var defaults = {
+        port: 8080,
+    };
+
+
+
+    var storage;
+
+    var _init = function () {
+        storage = PreferencesManager.getPreferenceStorage(TERMINAL_SETTINGS_CLIENT_ID, defaults);
+        settings = storage.getAllValues();
+    };
+
+    var _handleSave = function () {
+        var inputValues = $(".brackets-terminal-settings-dialog").find('input').serializeArray();
+        inputValues.forEach(function (configElement) {
+            settings[configElement.name] = configElement.value;
+        });
+        storage.setAllValues(settings);
+        settings = storage.getAllValues();
+        $('#brackets-terminal-save').off('click', _handleSave);
+    };
+
+    var _showDialog = function () {
+        Dialogs.showModalDialogUsingTemplate(Mustache.render(dialogTemplate, settings));
+        $('#brackets-terminal-save').on('click', _handleSave);
+    };
+
+
+
+    var _getAll = function () {
+        return settings;
+    };
+
+    var _get = function (key) {
+        return settings[key];
+    };
+
+    _init();
+
+    exports.showDialog = _showDialog;
+    exports.getAll = _getAll;
+    exports.get = _get;
+
+    // We could also add a key binding at the same time:
+    //menu.addMenuItem(KARMA_COMMAND_ID, "Ctrl-Alt-H");
+    // (Note: "Ctrl" is automatically mapped to "Cmd" on Mac)
+});

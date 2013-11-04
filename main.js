@@ -15,12 +15,14 @@ define(function (require, exports, module) {
         Resizer = brackets.getModule("utils/Resizer"),
         panelTemplate = require("text!htmlContent/bottom-panel.html"),
 
+        settings = require("src/settings"),
         toolbarManager = require("src/toolbarManager"),
         terminalManager = require("src/terminal")();
 
     var $bashPanel;
 
     var TERMINAL_COMMAND_ID = "artoale.terminal.open";
+    var TERMINAL_SETTINGS_COMMAND_ID = "artoale.terminal.settings";
 
     var _visible = false;
 
@@ -61,14 +63,14 @@ define(function (require, exports, module) {
     function init() {
         toolbarManager.setStatus(toolbarManager.NOT_RUNNING);
         terminalManager.clear();
-        terminalManager.startConnection();
+        terminalManager.startConnection('http://localhost:' + settings.get('port'));
 
 
         renderHtml('<div id="bash-console"></div>');
 
         $bashPanel.find(".close").on('click', function () {
             handleAction();
-//            togglePanel('close');
+            //            togglePanel('close');
         });
 
     }
@@ -105,6 +107,12 @@ define(function (require, exports, module) {
             handleAction();
         });
 
+        CommandManager.register("Brackets terminal settings", TERMINAL_SETTINGS_COMMAND_ID, function () {
+            settings.showDialog();
+        });
+
+
+
         Mustache.render(panelTemplate, Strings);
         PanelManager.createBottomPanel("bash.terminal", $(panelTemplate), 100);
 
@@ -115,12 +123,12 @@ define(function (require, exports, module) {
 
 
 
-//        $(window).resize(function () {
-//            if (this.resizeTO) {
-//                window.clearTimeout(this.resizeTO);
-//            }
-//            this.resizeTO = window.setTimeout(resize, 200);
-//        });
+        //        $(window).resize(function () {
+        //            if (this.resizeTO) {
+        //                window.clearTimeout(this.resizeTO);
+        //            }
+        //            this.resizeTO = window.setTimeout(resize, 200);
+        //        });
         $('#sidebar').on('panelResizeEnd', resize);
         $bashPanel.on('panelResizeEnd', resize);
         $(terminalManager).on('connected', function () {
@@ -147,8 +155,10 @@ define(function (require, exports, module) {
         });
 
 
+
         var menu = Menus.getMenu(Menus.AppMenuBar.VIEW_MENU);
         menu.addMenuItem(TERMINAL_COMMAND_ID, "Ctrl-Shift-P");
+        menu.addMenuItem(TERMINAL_SETTINGS_COMMAND_ID);
 
 
 

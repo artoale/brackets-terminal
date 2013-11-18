@@ -88,15 +88,7 @@ define(function (require, exports, module) {
     };
 
     terminalProto.clear = function () {
-        //        if (this.terminal) {
-        //            this.terminal.removeAllListeners('data');
-        //            this.terminal.destroy();
-        //        }
-        //        this.terminal = undefined;
         this.id = undefined;
-        //        if (this.socket) {
-        //            this.socket.removeAllListeners('data');
-        //        }
     };
 
     terminalProto.clearHandler = function () {

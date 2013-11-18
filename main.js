@@ -99,6 +99,7 @@ define(function (require, exports, module) {
     }
 
     var first = true;
+    var killed = false;
 
     AppInit.htmlReady(function () {
         ExtensionUtils.loadStyleSheet(module, "terminal.css");
@@ -117,10 +118,6 @@ define(function (require, exports, module) {
         PanelManager.createBottomPanel("bash.terminal", $(panelTemplate), 100);
 
         $bashPanel = $('#brackets-terminal');
-
-
-
-
 
 
         //        $(window).resize(function () {
@@ -143,6 +140,8 @@ define(function (require, exports, module) {
         });
 
         $(terminalManager).on('killed', function () {
+            //ctrl+d or exit\n triggered terminal close
+            killed = true;
             toolbarManager.setStatus(toolbarManager.CONNECTED);
             togglePanel('close');
         });
@@ -152,6 +151,10 @@ define(function (require, exports, module) {
                 first = false;
             }
             toolbarManager.setStatus(toolbarManager.NOT_ACTIVE);
+            if (killed) {
+                killed = false;
+                handleAction();
+            }
         });
 
 

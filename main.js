@@ -17,7 +17,8 @@ define(function (require, exports, module) {
 
         settings = require("src/settings"),
         toolbarManager = require("src/toolbarManager"),
-        terminalManager = require("src/terminal")();
+        terminalManager = require("src/terminal")(),
+        shortcut = require("src/shortcut")(terminalManager.command.bind(terminalManager));
 
     var $bashPanel;
 
@@ -38,6 +39,7 @@ define(function (require, exports, module) {
         if (!_visible) {
             Resizer.show($bashPanel);
             openTerminalCommand.setChecked(true);
+            $bashPanel.find('.terminal').css('font-size', settings.get('fontSize'));
             _visible = true;
         } else {
             Resizer.hide($bashPanel);
@@ -61,6 +63,7 @@ define(function (require, exports, module) {
     }
 
     function init() {
+        var $terminal;
         toolbarManager.setStatus(toolbarManager.NOT_RUNNING);
         terminalManager.clear();
         terminalManager.startConnection('http://localhost:' + settings.get('port'));
@@ -70,7 +73,37 @@ define(function (require, exports, module) {
 
         $bashPanel.find(".close").on('click', function () {
             handleAction();
-            //            togglePanel('close');
+        });
+
+
+
+
+        $bashPanel.find("#terminal-commands").on('click', 'a', function () {
+            $terminal = $bashPanel.find('.terminal');
+            var command = $(this).data('command'),
+                fontsize = '';
+
+            if(command && typeof shortcut[command] === 'function') {
+                shortcut[command]();
+                return;
+            }
+
+            var action = $(this).data('action');
+            console.log('action', action);
+            if (action && action === 'font-plus') {
+                console.log('terminal', $terminal);
+                fontsize = parseInt($terminal.css('font-size'), 10);
+                fontsize += 1;
+                settings.set('fontSize',fontsize);
+                $terminal.css('font-size', fontsize + 'px');
+                resize();
+            } else if (action && action === 'font-minus') {
+                fontsize = parseInt($terminal.css('font-size'), 10);
+                fontsize = Math.max(fontsize - 1, 1);
+                settings.set('fontSize',fontsize);
+                $terminal.css('font-size', fontsize + 'px');
+                resize();
+            }
         });
 
     }

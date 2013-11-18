@@ -1,7 +1,7 @@
 {
     "name": "brackets-terminal",
     "title": "Brackets Terminal",
-    "version": "0.1.2",
+    "version": "0.2.0",
     "description": "Open a terminal inside Brackets",
     "main": "main.js",
     "homepage": "https://github.com/artoale/brackets-terminal",

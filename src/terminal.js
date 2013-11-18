@@ -10,6 +10,9 @@ define(function (require, exports, module) {
         this.createTerminal();
     };
 
+    terminalProto.command = function (command) {
+        this.socket.emit('data', this.id, command + '\n');
+    };
 
     terminalProto.createHandler = function createHandler(err, data) {
         if (err) {
@@ -109,7 +112,7 @@ define(function (require, exports, module) {
             if (!this.socket.socket.connected) {
                 this.socket.socket.connect();
             } else {
-//                $(this).trigger('connected');
+                //                $(this).trigger('connected');
             }
             return;
         }

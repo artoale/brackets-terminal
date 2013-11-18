@@ -13,6 +13,7 @@ define(function (require, exports) {
     var settings;
     var defaults = {
         port: 8080,
+        fontSize: 15
     };
 
 
@@ -39,11 +40,18 @@ define(function (require, exports) {
         $('#brackets-terminal-save').on('click', _handleSave);
     };
 
-
+    var _set = function (key, value) {
+        settings[key] = value;
+        storage.setAllValues(settings);
+        settings = storage.getAllValues();
+    };
 
     var _getAll = function () {
         return settings;
     };
+
+
+
 
     var _get = function (key) {
         return settings[key];
@@ -52,6 +60,7 @@ define(function (require, exports) {
     _init();
 
     exports.showDialog = _showDialog;
+    exports.set = _set;
     exports.getAll = _getAll;
     exports.get = _get;
 

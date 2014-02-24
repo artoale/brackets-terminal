@@ -95,7 +95,7 @@ define(function (require, exports, module) {
             };
         };
         for (var termId in this.terminals) {
-            this.terminals[termId].on('data', emit(id));    
+            this.terminals[termId].on('data', emit(termId));    
         }
 
         this.socket.on('data', function (id, data) {

@@ -1,6 +1,6 @@
 /*globals define, $*/
 define(function (require, exports, module) {
-
+    "use strict";
     var terminalProto = {},
         io = require('vendor/socket-io'),
         Terminal = require('vendor/tty');
@@ -15,11 +15,18 @@ define(function (require, exports, module) {
     };
 
     terminalProto.createHandler = function createHandler(err, data) {
+        var term;
         if (err) {
             console.error(err);
         }
-        this.id = data.id;
-        this.shellName = data.process;
+        
+//        if (!this.terminal) { //TODO - Remove if
+            term = new Terminal(data.cols, data.rows);
+            this.terminals[data.id] = term;
+            this.registerDataHandler();
+//        }
+        
+//        this.id = data.id;
 
         this.socket.on('kill', function () {
             this.clear();
@@ -37,7 +44,7 @@ define(function (require, exports, module) {
             //            this.clearHandler();
         });
 
-        $(this).trigger('created', this.terminal);
+        $(this).trigger('created', data.id);
     };
 
     terminalProto.handleResize = function handleResize($bashPanel) {
@@ -47,10 +54,9 @@ define(function (require, exports, module) {
             cols = 140,
             lineHeight,
             fontSize;
-        if (this.terminal) {
+//        if (this.terminal) {
             height -= $bashPanel.find('.toolbar').height() - 12; //5px top/bottom border to remove...+2 security margin :)
             width -= 12; // same here :)
-            lineHeight = $bashPanel.find('.terminal').css('line-height');
             var $span = $('<span>X</span>');
             $span.css({
                 position: 'absolute',
@@ -64,34 +70,45 @@ define(function (require, exports, module) {
             fontSize = parseInt(fontSize, 10);
             rows = Math.floor(height / lineHeight);
             cols = Math.floor(width / fontSize);
-            this.socket.emit('resize', this.id, cols, rows);
-            this.terminal.showCursor(this.terminal.x, this.terminal.y);
-            this.terminal.resize(cols, rows);
-        }
+            for (var termId in this.terminals) {
+                this.socket.emit('resize', termId, cols, rows);    
+                this.terminals[termId].resize(cols, rows);
+                this.terminals[termId].showCursor(this.terminals[termId].x, this.terminals[termId].y);
+            }
+//            this.socket.emit('resize', this.id, cols, rows);
+//            this.terminal.showCursor(this.terminal.x, this.terminal.y);
+//            this.terminal.resize(cols, rows);+
+//        }
     };
 
     terminalProto.focus = function () {
-        this.terminal.focus();
+//        this.terminal.focus();
     };
     terminalProto.blur = function () {
-        this.terminal.blur();
+//        this.terminal.blur();
     };
     terminalProto.registerDataHandler = function () {
-        this.terminal.on('data', function (data) {
-            this.socket.emit('data', this.id, data);
-        }.bind(this));
+        var that = this;
+        var emit = function (id) {
+            return function (data) {
+                that.socket.emit('data', id, data);
+            };
+        };
+        for (var termId in this.terminals) {
+            this.terminals[termId].on('data', emit(id));    
+        }
 
         this.socket.on('data', function (id, data) {
-            this.terminal.write(data);
+            this.terminals[id].write(data);
         }.bind(this));
     };
 
-    terminalProto.open = function open(element) {
-        this.terminal.open(element);
+    terminalProto.open = function open(element, termId) {
+        this.terminals[termId].open(element);
     };
 
     terminalProto.clear = function () {
-        this.id = undefined;
+//        this.id = undefined;
     };
 
     terminalProto.clearHandler = function () {
@@ -131,12 +148,14 @@ define(function (require, exports, module) {
         if (!this.socket.socket.connected) {
             throw new Error('Unable to create terminal without a connection');
         }
+        this.terminals = this.terminals || {};
+        
         cols = cols || 80;
         rows = rows || 24;
-        if (!this.terminal) {
-            this.terminal = new Terminal(cols, rows);
-            this.registerDataHandler();
-        }
+//        if (!this.terminal) { //TODO - Remove if
+//            this.terminal = new Terminal(cols, rows);
+//            this.registerDataHandler();
+//        }
         this.socket.emit('create', cols, rows, this.createHandler.bind(this));
     };
 

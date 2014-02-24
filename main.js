@@ -178,9 +178,9 @@ define(function (require, exports, module) {
             toolbarManager.setStatus(toolbarManager.CONNECTED);
             togglePanel('close');
         });
-        $(terminalManager).on('created', function () {
+        $(terminalManager).on('created', function (terminalId) {
             if (first) {
-                terminalManager.open($bashPanel.find('#bash-console').get()[0]);
+                terminalManager.open($bashPanel.find('#bash-console').get()[0], terminalId);
                 first = false;
             }
             toolbarManager.setStatus(toolbarManager.NOT_ACTIVE);

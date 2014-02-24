@@ -119,3 +119,30 @@
 #terminal-icon.error {
     background-position: 0 -120px;
 }
+
+
+#brackets-terminal .nav.nav-tabs {
+    margin: -4px 0 -6px 10px;
+}
+#brackets-terminal .nav.nav-tabs > li > a {
+    /*    -webkit-border-radius: 0;*/
+    cursor: pointer;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    line-height: 18px;
+    color: rgb(220, 220, 220);
+    background-color: rgba(0, 0, 0, 0.4);
+    box-shadow:inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 -1px 3px rgba(0, 0, 0, 0.12);
+}
+#brackets-terminal .nav.nav-tabs > li:hover > a {
+    /*    -webkit-border-radius: 0;*/
+    background-color: rgba(0, 0, 0, 0.55);
+    border-color:transparent;
+}
+#brackets-terminal .nav.nav-tabs > li.active > a {
+    /*    -webkit-border-radius: 0;*/
+    /*    border-bottom: solid 1px #DFE2E2;*/
+    border-color:transparent;
+    background-color: rgba(0, 0, 0, 0.7);
+    box-shadow:inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 -1px 3px rgba(0, 0, 0, 0.12);
+}

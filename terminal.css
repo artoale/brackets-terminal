@@ -86,6 +86,7 @@
     border: #000 solid 5px;
     font-family:'Oxygen Mono', monospace;
     font-size: 15px;
+    line-height: 1.618;
     font-weight: bold;
     color: #fff;
     background-color: #312f29;

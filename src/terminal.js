@@ -10,8 +10,9 @@ define(function (require, exports, module) {
         this.registerSocketHandler();
     };
 
-    terminalProto.command = function (command) {
-        this.socket.emit('data', this.id, command + '\n');
+    terminalProto.command = function (terminalId, command) {
+        this.socket.emit('data', terminalId, command + '\n');
+        this.terminals[terminalId].focus();
     };
 
     terminalProto.createHandler = function createHandler(err, data) {
@@ -22,6 +23,9 @@ define(function (require, exports, module) {
 
         term = new Terminal(data.cols, data.rows);
         this.terminals[data.id] = term;
+        term.on('title', function (title) {
+            $(this).trigger('title', [data.id, title]);
+        }.bind(this));
         this.registerDataHandler(data.id);
 
         this.socket.on('kill', function () {
@@ -50,20 +54,20 @@ define(function (require, exports, module) {
             fontSize;
 
         if (this.terminals[terminalId]) {
-            height = $bashPanel.outerHeight(true);
+            height = $bashPanel.height();
             width = $bashPanel.width();
-            height -= $bashPanel.find('.toolbar').height() - 12; //5px top/bottom border to remove...+2 security margin :)
-            width -= 12; // same here :)
+            height -= $bashPanel.find('.toolbar').height() + 10; //5px top/bottom border to remove
+            width -= 10; // same here :)
             var $span = $('<span>X</span>');
             $span.css({
                 position: 'absolute',
                 left: -500
             });
-            $span.appendTo($bashPanel.find('.terminal').get()[0]);
+            $span.appendTo($bashPanel.find('.terminal.active').get()[0]);
             fontSize = $span.width();
-            lineHeight = $span.height();
+            lineHeight = $span.outerHeight(true);
             $span.remove();
-            lineHeight = parseInt(lineHeight, 10) + 1;
+            lineHeight = parseInt(lineHeight, 10);
             fontSize = parseInt(fontSize, 10);
             rows = Math.floor(height / lineHeight);
             cols = Math.floor(width / fontSize);
@@ -106,6 +110,15 @@ define(function (require, exports, module) {
         this.socket.on('data', function (id, data) {
             this.terminals[id].write(data);
         }.bind(this));
+    };
+
+    terminalProto.destroy = function (terminalId) {
+        if (this.terminals[terminalId]) {
+            this.socket.emit('kill', terminalId);
+            this.terminals[terminalId].destroy();
+            delete this.terminals[terminalId];
+
+        }
     };
 
     terminalProto.open = function open(element, termId) {

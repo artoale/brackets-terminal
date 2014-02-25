@@ -16,7 +16,7 @@ define(function (require, exports, module) {
 
 
     var TERMINAL_COMMAND_ID = 'artoale.terminal.open';
-    
+
     var TERMINAL_SETTINGS_COMMAND_ID = 'artoale.terminal.settings';
 
     var openTerminalCommand = null;
@@ -26,10 +26,11 @@ define(function (require, exports, module) {
     var createNewTerminal = function (terminalId) {
         var $terminal = panel.addTab(terminalId);
         terminalManager.open($terminal.get()[0], terminalId);
+        $('.terminal').css('font-size', settings.get('fontSize') + 'px');
     };
 
     function resize() {
-        terminalManager.handleResize(panel._$panel, currentTerminal);
+        terminalManager.handleResize(panel.$panel, currentTerminal);
     }
 
     function addToFontSize(amount) {
@@ -40,9 +41,9 @@ define(function (require, exports, module) {
         $terminal.css('font-size', fontsize + 'px');
         resize();
     }
-    
+
     function init() {
-        
+
         toolbarManager.setStatus(toolbarManager.NOT_RUNNING);
         terminalManager.clear();
         terminalManager.startConnection('http://localhost:' + settings.get('port'));
@@ -52,11 +53,11 @@ define(function (require, exports, module) {
         });
 
         $(panel).on('command', function (evt, command) {
-            if (command && typeof shortcut[command] === 'function') {
-                shortcut[command]();
+            if (command && typeof shortcut[command] === 'function' && currentTerminal) {
+                shortcut[command](currentTerminal);
                 return;
             }
-            var action = $(this).data('action');
+            var action = command;
             if (action && action === 'font-plus') {
                 addToFontSize(1);
             } else if (action && action === 'font-minus') {
@@ -67,14 +68,14 @@ define(function (require, exports, module) {
         });
     }
 
-    function handleAction() {
+    function handleAction(keepActive) {
         if (toolbarManager.status === toolbarManager.ACTIVE) {
             panel.toggle();
             toolbarManager.setStatus(toolbarManager.NOT_ACTIVE);
             terminalManager.blur(currentTerminal);
         } else if (toolbarManager.status === toolbarManager.NOT_ACTIVE) {
             panel.toggle();
-            resize(currentTerminal);
+//            resize(currentTerminal);
             terminalManager.focus(currentTerminal);
             toolbarManager.setStatus(toolbarManager.ACTIVE);
         } else if (toolbarManager.status === toolbarManager.NOT_CONNECTED || toolbarManager.status === toolbarManager.NOT_RUNNING) {
@@ -86,6 +87,9 @@ define(function (require, exports, module) {
             //            console.log('ERROR ACTION');
             //Nulla da fare, siamo nella cacca
         }
+        if (keepActive) {
+            toolbarManager.setStatus(toolbarManager.ACTIVE);
+        }
     }
 
     var first = true;
@@ -93,7 +97,7 @@ define(function (require, exports, module) {
 
     AppInit.htmlReady(function () {
         ExtensionUtils.loadStyleSheet(module, 'terminal.css');
-        
+
         openTerminalCommand = CommandManager.register('Show terminal', TERMINAL_COMMAND_ID, function () {
             handleAction();
         });
@@ -105,21 +109,43 @@ define(function (require, exports, module) {
         panel.init();
 
         $(panel).on('resize', resize);
-        
+
         $(panel).on('active-tab', function (evt, terminalId) {
             currentTerminal = terminalId;
+            resize();
+            terminalManager.focus(currentTerminal);
         });
-        
+
         $(panel).on('shown', function () {
             openTerminalCommand.setChecked(true);
-            $('.terminal').css('font-size', settings.get('fontSize') + 'px');
+            if (!currentTerminal) {
+                panel.$panel.find('.tab-header').first().click();
+            }
         });
-        
+
         $(panel).on('hidden', function () {
             openTerminalCommand.setChecked(false);
         });
 
+        $(panel).on('close-tab', function (evt, terminalId) {
+            terminalManager.destroy(terminalId);
+        });
+
+
+        $(panel).on('close-last', function () {
+            currentTerminal = null;
+            toolbarManager.setStatus(toolbarManager.NOT_ACTIVE);
+            panel.toggle();
+            terminalManager.createTerminal();
+        });
+
         $('#sidebar').on('panelResizeEnd', resize);
+
+        $(terminalManager).on('title', function (evt, terminalId, title) {
+            var tabId  = terminalId.replace(/\//g, '-');
+            panel.setTabTitle(tabId, title);
+        });
+
 
         $(terminalManager).on('connected', function () {
             toolbarManager.setStatus(toolbarManager.CONNECTED);
@@ -133,17 +159,19 @@ define(function (require, exports, module) {
             toolbarManager.setStatus(toolbarManager.NOT_RUNNING);
         });
 
-        $(terminalManager).on('killed', function () {
-            //ctrl+d or exit\n triggered terminal close
-            killed = true;
-            toolbarManager.setStatus(toolbarManager.CONNECTED);
-            panel.toggle('close');
-        });
-        
+//        $(terminalManager).on('killed', function () {
+//            //ctrl+d or exit\n triggered terminal close
+//            killed = true;
+//            toolbarManager.setStatus(toolbarManager.CONNECTED);
+//            panel.toggle('close');
+//        });
+
         $(terminalManager).on('created', function (event, terminalId) {
             createNewTerminal(terminalId);
             first = false;
-            toolbarManager.setStatus(toolbarManager.NOT_ACTIVE);
+            if (toolbarManager.status !== toolbarManager.ACTIVE) {
+                toolbarManager.setStatus(toolbarManager.NOT_ACTIVE);
+            }
             if (killed) {
                 killed = false;
                 handleAction();

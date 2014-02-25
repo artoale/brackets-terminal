@@ -1,99 +1,37 @@
-/** Simple extension that adds a "File > Hello World" menu item */
 define(function (require, exports, module) {
     'use strict';
 
 
     var CommandManager = brackets.getModule('command/CommandManager'),
         Menus = brackets.getModule('command/Menus'),
-        PanelManager = brackets.getModule('view/PanelManager'),
         AppInit = brackets.getModule('utils/AppInit'),
-        Strings = brackets.getModule('strings'),
         ExtensionUtils = brackets.getModule('utils/ExtensionUtils'),
-        Resizer = brackets.getModule('utils/Resizer'),
 
-        panelTemplate = require('text!htmlContent/bottom-panel.html'),
-        tabTemplate = require('text!htmlContent/tab-header.html'),
         settings = require('src/settings'),
+        panel = require('src/panel')(),
         toolbarManager = require('src/toolbarManager'),
         terminalManager = require('src/terminal')(),
         shortcut = require('src/shortcut')(terminalManager.command.bind(terminalManager));
 
-    var $bashPanel;
 
-
-    var currentTerminal = null;
 
     var TERMINAL_COMMAND_ID = 'artoale.terminal.open';
     var TERMINAL_SETTINGS_COMMAND_ID = 'artoale.terminal.settings';
 
-    var _visible = false;
+    var openTerminalCommand = null;
 
-    var openTerminalCommand;
+    var currentTerminal = null;
 
-    function togglePanel(forceShow) {
-        if (_visible && forceShow === 'show') {
-            return;
-        }
-        if (!_visible && forceShow === 'close') {
-            return;
-        }
-        if (!_visible) {
-            Resizer.show($bashPanel);
-            openTerminalCommand.setChecked(true);
-            $bashPanel.find('.terminal').css('font-size', settings.get('fontSize'));
-            _visible = true;
-        } else {
-            Resizer.hide($bashPanel);
-            openTerminalCommand.setChecked(false);
-            _visible = false;
-        }
-    }
 
-    function addTabHeader(tabId) {
-        var html = Mustache.render(tabTemplate, {
-            id: tabId.replace(/\//g, '-'),
-            name: 'Terminal'
-        });
-        $bashPanel.find('.nav').append(html);
-    }
-
-    function showTab($this) {
-        var $ul = $this.closest('ul'),
-            selector,
-            $target,
-            $parent;
-
-        selector = $this.attr('href');
-        if ($this.parent('li').hasClass('active')) {
-            return;
-        }
-        $target = $(selector);
-        $parent = $target.parent();
-        var $active = $parent.find('> .active');
-        $ul.find('> li.active').removeClass('active');
-        $active.removeClass('active');
-        $this.parent().addClass('active');
-        $target.addClass('active');
-        currentTerminal = $target.data('id');
-    }
-
-    function renderHtml(html) {
-        return $bashPanel.find('.terminal-container').append(html);
-    }
 
 
     var createNewTerminal = function (terminalId) {
-        renderHtml('<div class="terminal-tab" data-id="' + terminalId + '" id="' + terminalId.replace(/\//g, '-') + '"></div>');
-        var $terminal = $('#' + terminalId.replace(/\//g, '-'));
-        //        terminalManager.createTerminal();
+        var $terminal = panel.addTab(terminalId);
         terminalManager.open($terminal.get()[0], terminalId);
-        addTabHeader(terminalId);
     };
 
     function resize() {
-        if (_visible) {
-            terminalManager.handleResize($bashPanel, currentTerminal);
-        }
+        terminalManager.handleResize(panel._$panel, currentTerminal);
     }
 
     function init() {
@@ -102,15 +40,14 @@ define(function (require, exports, module) {
         terminalManager.clear();
         terminalManager.startConnection('http://localhost:' + settings.get('port'));
 
-        $bashPanel.find('.close').on('click', function () {
+        $(panel).on('close', function () {
             handleAction();
         });
 
 
-        $bashPanel.find('#terminal-commands').on('click', 'a', function () {
-            $terminal = $bashPanel.find('.terminal');
-            var command = $(this).data('command'),
-                fontsize = '';
+        $(panel).on('command', function (evt, command) {
+            $terminal = $('.terminal');
+            var fontsize = '';
 
             if (command && typeof shortcut[command] === 'function') {
                 shortcut[command]();
@@ -139,11 +76,11 @@ define(function (require, exports, module) {
 
     function handleAction() {
         if (toolbarManager.status === toolbarManager.ACTIVE) {
-            togglePanel();
+            panel.toggle();
             toolbarManager.setStatus(toolbarManager.NOT_ACTIVE);
             terminalManager.blur(currentTerminal);
         } else if (toolbarManager.status === toolbarManager.NOT_ACTIVE) {
-            togglePanel();
+            panel.toggle();
             resize(currentTerminal);
             terminalManager.focus(currentTerminal);
             toolbarManager.setStatus(toolbarManager.ACTIVE);
@@ -171,24 +108,29 @@ define(function (require, exports, module) {
             settings.showDialog();
         });
 
-        Mustache.render(panelTemplate, Strings);
-        PanelManager.createBottomPanel('bash.terminal', $(panelTemplate), 100);
+        panel.init();
 
-        $bashPanel = $('#brackets-terminal');
 
+        $(panel).on('resize', resize);
+        $(panel).on('active-tab', function (evt, terminalId) {
+            currentTerminal = terminalId;
+        });
+        $(panel).on('shown', function () {
+            openTerminalCommand.setChecked(true);
+            $('.terminal').css('font-size', settings.get('fontSize') + 'px');
+        });
+        $(panel).on('hidden', function () {
+            openTerminalCommand.setChecked(false);
+        });
 
         $('#sidebar').on('panelResizeEnd', resize);
-        $bashPanel.on('panelResizeEnd', resize);
+
         $(terminalManager).on('connected', function () {
             toolbarManager.setStatus(toolbarManager.CONNECTED);
             terminalManager.createTerminal();
             $(terminalManager).on('disconnected', function () {
                 toolbarManager.setStatus(toolbarManager.NOT_CONNECTED);
             });
-        });
-
-        $bashPanel.on('click', '.tab-header', function () {
-            showTab($(this));
         });
 
         $(terminalManager).on('notConnected', function () {
@@ -199,7 +141,7 @@ define(function (require, exports, module) {
             //ctrl+d or exit\n triggered terminal close
             killed = true;
             toolbarManager.setStatus(toolbarManager.CONNECTED);
-            togglePanel('close');
+            panel.toggle('close');
         });
         $(terminalManager).on('created', function (event, terminalId) {
             createNewTerminal(terminalId);
@@ -215,13 +157,10 @@ define(function (require, exports, module) {
         menu.addMenuItem(TERMINAL_COMMAND_ID, 'Ctrl-Shift-P');
         menu.addMenuItem(TERMINAL_SETTINGS_COMMAND_ID);
 
-
-
         toolbarManager.createIcon();
         $(toolbarManager).click(handleAction);
 
         init();
 
     });
-
 });

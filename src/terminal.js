@@ -1,15 +1,13 @@
-/*globals define, $*/
+/*jshint devel:true */
 define(function (require, exports, module) {
-    "use strict";
+    'use strict';
     var terminalProto = {},
         io = require('vendor/socket-io'),
         Terminal = require('vendor/tty');
 
     terminalProto.connectHandler = function connectHandler() {
         $(this).trigger('connected');
-        //never triggered?!?
-        this.registerSocketHandler()
-//        this.createTerminal();
+        this.registerSocketHandler();
     };
 
     terminalProto.command = function (command) {
@@ -22,13 +20,9 @@ define(function (require, exports, module) {
             console.error(err);
         }
 
-//        if (!this.terminal) { //TODO - Remove if
-            term = new Terminal(data.cols, data.rows);
-            this.terminals[data.id] = term;
-            this.registerDataHandler(data.id);
-//        }
-
-//        this.id = data.id;
+        term = new Terminal(data.cols, data.rows);
+        this.terminals[data.id] = term;
+        this.registerDataHandler(data.id);
 
         this.socket.on('kill', function () {
             this.clear();
@@ -38,53 +32,48 @@ define(function (require, exports, module) {
         this.socket.on('disconnect', function () {
             this.clear();
             $(this).trigger('disconnected');
-            //            this.socket.on('reconnect', this.connectHandler.bind(this));
         }.bind(this));
 
         this.socket.on('reconnect_failed', function () {
             this.clear();
-            //            this.clearHandler();
         });
         this.blurAll();
         $(this).trigger('created', data.id);
     };
 
-    terminalProto.handleResize = function handleResize($bashPanel) {
+    terminalProto.handleResize = function handleResize($bashPanel, terminalId) {
         var height = $bashPanel.height(),
             width = $bashPanel.width(),
             rows = 100,
             cols = 140,
             lineHeight,
             fontSize;
-//        if (this.terminal) {
-            height -= $bashPanel.find('.toolbar').height() - 12; //5px top/bottom border to remove...+2 security margin :)
-            width -= 12; // same here :)
-            var $span = $('<span>X</span>');
-            $span.css({
-                position: 'absolute',
-                left: -500
-            });
-            $span.appendTo($bashPanel.find('.terminal').get()[0]);
-            fontSize = $span.width();
-            lineHeight = $span.height();
-            $span.remove();
-            lineHeight = parseInt(lineHeight, 10) + 1;
-            fontSize = parseInt(fontSize, 10);
-            rows = Math.floor(height / lineHeight);
-            cols = Math.floor(width / fontSize);
-            for (var termId in this.terminals) {
-                this.socket.emit('resize', termId, cols, rows);
-                this.terminals[termId].resize(cols, rows);
-                this.terminals[termId].showCursor(this.terminals[termId].x, this.terminals[termId].y);
-            }
-//            this.socket.emit('resize', this.id, cols, rows);
-//            this.terminal.showCursor(this.terminal.x, this.terminal.y);
-//            this.terminal.resize(cols, rows);+
-//        }
-    };
+        //        if (this.terminal) {
+        height -= $bashPanel.find('.toolbar').height() - 12; //5px top/bottom border to remove...+2 security margin :)
+        width -= 12; // same here :)
+        var $span = $('<span>X</span>');
+        $span.css({
+            position: 'absolute',
+            left: -500
+        });
+        $span.appendTo($bashPanel.find('.terminal').get()[0]);
+        fontSize = $span.width();
+        lineHeight = $span.height();
+        $span.remove();
+        lineHeight = parseInt(lineHeight, 10) + 1;
+        fontSize = parseInt(fontSize, 10);
+        rows = Math.floor(height / lineHeight);
+        cols = Math.floor(width / fontSize);
 
-    terminalProto.focus = function () {
-//        this.terminal.focus();
+        this.socket.emit('resize', terminalId, cols, rows);
+        this.terminals[terminalId].resize(cols, rows);
+        this.terminals[terminalId].showCursor(this.terminals[terminalId].x, this.terminals[terminalId].y);
+
+    };
+    terminalProto.focus = function (terminalId) {
+        if (this.terminals[terminalId]) {
+            this.terminals[terminalId].focus();
+        }
     };
 
     terminalProto.blurAll = function () {
@@ -92,8 +81,10 @@ define(function (require, exports, module) {
             this.terminals[termId].blur();
         }
     };
-    terminalProto.blur = function () {
-//        this.terminal.blur();
+    terminalProto.blur = function (terminalId) {
+        if (this.terminals[terminalId]) {
+            this.terminals[terminalId].blur();
+        }
     };
     terminalProto.registerDataHandler = function (terminalId) {
         var that = this;
@@ -102,13 +93,7 @@ define(function (require, exports, module) {
                 that.socket.emit('data', id, data);
             };
         };
-//        for (var termId in this.terminals) {
-            this.terminals[terminalId].on('data', emit(terminalId));
-//        }
-
-//        this.socket.on('data', function (id, data) {
-//            this.terminals[id].write(data);
-//        }.bind(this));
+        this.terminals[terminalId].on('data', emit(terminalId));
     };
 
     terminalProto.registerSocketHandler = function () {
@@ -118,11 +103,13 @@ define(function (require, exports, module) {
     };
 
     terminalProto.open = function open(element, termId) {
-        this.terminals[termId].open(element);
+        if (this.terminals[termId]) {
+            this.terminals[termId].open(element);
+        }
     };
 
     terminalProto.clear = function () {
-//        this.id = undefined;
+        //        this.id = undefined;
     };
 
     terminalProto.clearHandler = function () {
@@ -142,8 +129,6 @@ define(function (require, exports, module) {
         if (this.socket) {
             if (!this.socket.socket.connected) {
                 this.socket.socket.connect();
-            } else {
-                //                $(this).trigger('connected');
             }
             return;
         }

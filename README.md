@@ -16,11 +16,14 @@ You can also run another editor inside brackets!
 * Open a terminal and start the server with `$ tty.js`
 * **Bonus**: you may want to add tty.js as a startup process in order to always have it running (see their website for more on configuration)
 * Open Brackets > Extension Manager > Available and look for 'Brackets Terminal'. Hit `Install`
+* Note that `tty.js` runs on port `8080` by default. You can specify a different port by running it with `tty.js --port <another_number>` and then set the same port in View > Bracket terminal settings
 
 ##Usage
 
 You will see a new button on the sidebar as well as a new command in the menu (`View > Show Terminal`) - and a `Cmd/Ctrl+shift+P` keyboard shortcut. If everything goes well,
 the button in the sidebar will turn green and a terminal will show up as a bottom panel.
+Starting from version 0.3, brackets terminal support multiple tab, too!
+
 
 
 ##Requirement

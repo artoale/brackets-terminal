@@ -7,7 +7,9 @@ define(function (require, exports, module) {
 
     terminalProto.connectHandler = function connectHandler() {
         $(this).trigger('connected');
-        this.createTerminal();
+        //never triggered?!?
+        this.registerSocketHandler()
+//        this.createTerminal();
     };
 
     terminalProto.command = function (command) {
@@ -19,13 +21,13 @@ define(function (require, exports, module) {
         if (err) {
             console.error(err);
         }
-        
+
 //        if (!this.terminal) { //TODO - Remove if
             term = new Terminal(data.cols, data.rows);
             this.terminals[data.id] = term;
-            this.registerDataHandler();
+            this.registerDataHandler(data.id);
 //        }
-        
+
 //        this.id = data.id;
 
         this.socket.on('kill', function () {
@@ -43,7 +45,7 @@ define(function (require, exports, module) {
             this.clear();
             //            this.clearHandler();
         });
-
+        this.blurAll();
         $(this).trigger('created', data.id);
     };
 
@@ -71,7 +73,7 @@ define(function (require, exports, module) {
             rows = Math.floor(height / lineHeight);
             cols = Math.floor(width / fontSize);
             for (var termId in this.terminals) {
-                this.socket.emit('resize', termId, cols, rows);    
+                this.socket.emit('resize', termId, cols, rows);
                 this.terminals[termId].resize(cols, rows);
                 this.terminals[termId].showCursor(this.terminals[termId].x, this.terminals[termId].y);
             }
@@ -84,20 +86,32 @@ define(function (require, exports, module) {
     terminalProto.focus = function () {
 //        this.terminal.focus();
     };
+
+    terminalProto.blurAll = function () {
+        for (var termId in this.terminals) {
+            this.terminals[termId].blur();
+        }
+    };
     terminalProto.blur = function () {
 //        this.terminal.blur();
     };
-    terminalProto.registerDataHandler = function () {
+    terminalProto.registerDataHandler = function (terminalId) {
         var that = this;
         var emit = function (id) {
             return function (data) {
                 that.socket.emit('data', id, data);
             };
         };
-        for (var termId in this.terminals) {
-            this.terminals[termId].on('data', emit(termId));    
-        }
+//        for (var termId in this.terminals) {
+            this.terminals[terminalId].on('data', emit(terminalId));
+//        }
 
+//        this.socket.on('data', function (id, data) {
+//            this.terminals[id].write(data);
+//        }.bind(this));
+    };
+
+    terminalProto.registerSocketHandler = function () {
         this.socket.on('data', function (id, data) {
             this.terminals[id].write(data);
         }.bind(this));
@@ -149,13 +163,9 @@ define(function (require, exports, module) {
             throw new Error('Unable to create terminal without a connection');
         }
         this.terminals = this.terminals || {};
-        
+
         cols = cols || 80;
         rows = rows || 24;
-//        if (!this.terminal) { //TODO - Remove if
-//            this.terminal = new Terminal(cols, rows);
-//            this.registerDataHandler();
-//        }
         this.socket.emit('create', cols, rows, this.createHandler.bind(this));
     };
 

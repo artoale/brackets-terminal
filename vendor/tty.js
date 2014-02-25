@@ -284,6 +284,7 @@
             } while (el = el.parentNode);
             Terminal.focus.blur();
         });
+        Terminal.bindKeys = function nop () {};
     };
 
     Terminal.prototype.blur = function () {

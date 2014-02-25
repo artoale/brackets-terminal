@@ -89,6 +89,13 @@
     font-weight: bold;
     color: #fff;
     background-color: #312f29;
+
+}
+.terminal-tab, .terminal {
+    display: none;
+}
+.terminal-tab.active, .terminal.active {
+    display: block;
 }
 .reverse-video {
     color: #000;

@@ -42,7 +42,6 @@ define(function (require, exports, module) {
     }
     
     function init() {
-        var $terminal;
         
         toolbarManager.setStatus(toolbarManager.NOT_RUNNING);
         terminalManager.clear();
@@ -53,14 +52,10 @@ define(function (require, exports, module) {
         });
 
         $(panel).on('command', function (evt, command) {
-            var fontsize = '';
-            $terminal = $('.terminal');
-
             if (command && typeof shortcut[command] === 'function') {
                 shortcut[command]();
                 return;
             }
-
             var action = $(this).data('action');
             if (action && action === 'font-plus') {
                 addToFontSize(1);

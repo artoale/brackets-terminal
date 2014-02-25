@@ -1,7 +1,7 @@
 /*globals define, $*/
 
 define(function () {
-
+    'use strict';
     var possibleStatus = {
         NOT_RUNNING: {
             class: 'not-running'
@@ -30,7 +30,7 @@ define(function () {
 
     toolbarManager.createIcon = function() {
 
-        $('<a href="#" title="terminal" id="terminal-icon"></a>').appendTo($("#main-toolbar .buttons"));
+        $('<a href="#" title="terminal" id="terminal-icon"></a>').appendTo($('#main-toolbar .buttons'));
         this._$icon = $('#terminal-icon');
         this._$icon.on('click', function (){
             $(toolbarManager).trigger('click');

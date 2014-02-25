@@ -131,7 +131,6 @@ define(function (require, exports, module) {
                 $terminal.css('font-size', fontsize + 'px');
                 resize();
             } else if (action && action === 'new-terminal') {
-                //                addTabHeader('123')
                 terminalManager.createTerminal();
             }
         });
@@ -145,15 +144,13 @@ define(function (require, exports, module) {
             terminalManager.blur(currentTerminal);
         } else if (toolbarManager.status === toolbarManager.NOT_ACTIVE) {
             togglePanel();
-            //            resize();
+            resize(currentTerminal);
             terminalManager.focus(currentTerminal);
             toolbarManager.setStatus(toolbarManager.ACTIVE);
         } else if (toolbarManager.status === toolbarManager.NOT_CONNECTED || toolbarManager.status === toolbarManager.NOT_RUNNING) {
-            //            console.log('NOT CONNECTED ACTION');
             init();
         } else if (toolbarManager.status === toolbarManager.CONNECTED) {
             //            console.log('CONNECTED ACTION');
-            //manca un terminale vero e proprio?
             terminalManager.createTerminal();
         } else if (toolbarManager.status === toolbarManager.ERROR) {
             //            console.log('ERROR ACTION');

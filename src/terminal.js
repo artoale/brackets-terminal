@@ -42,32 +42,35 @@ define(function (require, exports, module) {
     };
 
     terminalProto.handleResize = function handleResize($bashPanel, terminalId) {
-        var height = $bashPanel.height(),
-            width = $bashPanel.width(),
+        var height,
+            width,
             rows = 100,
             cols = 140,
             lineHeight,
             fontSize;
-        //        if (this.terminal) {
-        height -= $bashPanel.find('.toolbar').height() - 12; //5px top/bottom border to remove...+2 security margin :)
-        width -= 12; // same here :)
-        var $span = $('<span>X</span>');
-        $span.css({
-            position: 'absolute',
-            left: -500
-        });
-        $span.appendTo($bashPanel.find('.terminal').get()[0]);
-        fontSize = $span.width();
-        lineHeight = $span.height();
-        $span.remove();
-        lineHeight = parseInt(lineHeight, 10) + 1;
-        fontSize = parseInt(fontSize, 10);
-        rows = Math.floor(height / lineHeight);
-        cols = Math.floor(width / fontSize);
 
-        this.socket.emit('resize', terminalId, cols, rows);
-        
         if (this.terminals[terminalId]) {
+            height = $bashPanel.height();
+            width = $bashPanel.width();
+            height -= $bashPanel.find('.toolbar').height() - 12; //5px top/bottom border to remove...+2 security margin :)
+            width -= 12; // same here :)
+            var $span = $('<span>X</span>');
+            $span.css({
+                position: 'absolute',
+                left: -500
+            });
+            $span.appendTo($bashPanel.find('.terminal').get()[0]);
+            fontSize = $span.width();
+            lineHeight = $span.height();
+            $span.remove();
+            lineHeight = parseInt(lineHeight, 10) + 1;
+            fontSize = parseInt(fontSize, 10);
+            rows = Math.floor(height / lineHeight);
+            cols = Math.floor(width / fontSize);
+
+            this.socket.emit('resize', terminalId, cols, rows);
+
+
             this.terminals[terminalId].resize(cols, rows);
             this.terminals[terminalId].showCursor(this.terminals[terminalId].x, this.terminals[terminalId].y);
         }

@@ -1,14 +1,11 @@
-/*jslint vars: true, plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global define, $, brackets, Mustache */
-
 define(function (require, exports) {
-    "use strict";
+    'use strict';
 
-    var PreferencesManager = brackets.getModule("preferences/PreferencesManager"),
-        Dialogs = brackets.getModule("widgets/Dialogs"),
-        dialogTemplate = require("text!htmlContent/settings-dialog.html");
+    var PreferencesManager = brackets.getModule('preferences/PreferencesManager'),
+        Dialogs = brackets.getModule('widgets/Dialogs'),
+        dialogTemplate = require('text!htmlContent/settings-dialog.html');
 
-    var TERMINAL_SETTINGS_CLIENT_ID = "bracketsTerminal.settings";
+    var TERMINAL_SETTINGS_CLIENT_ID = 'bracketsTerminal.settings';
 
     var settings;
     var defaults = {
@@ -26,7 +23,7 @@ define(function (require, exports) {
     };
 
     var _handleSave = function () {
-        var inputValues = $(".brackets-terminal-settings-dialog").find('input').serializeArray();
+        var inputValues = $('.brackets-terminal-settings-dialog').find('input').serializeArray();
         inputValues.forEach(function (configElement) {
             settings[configElement.name] = configElement.value;
         });

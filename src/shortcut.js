@@ -1,10 +1,7 @@
-/*jslint vars: true, plusplus: true, devel: true, nomen: true, regexp: true, indent: 4, maxerr: 50 */
-/*global define, brackets */
-
 define(function (require, exports, module) {
-    "use strict";
+    'use strict';
 
-    var ProjectManager = brackets.getModule("project/ProjectManager");
+    var ProjectManager = brackets.getModule('project/ProjectManager');
 
     module.exports = function (execute) {
         var clean = function () {

@@ -8,12 +8,11 @@ define(function (require, exports) {
     var TERMINAL_SETTINGS_CLIENT_ID = 'bracketsTerminal.settings';
 
     var settings;
+    
     var defaults = {
         port: 8080,
         fontSize: 15
     };
-
-
 
     var storage;
 
@@ -47,9 +46,6 @@ define(function (require, exports) {
         return settings;
     };
 
-
-
-
     var _get = function (key) {
         return settings[key];
     };
@@ -60,8 +56,4 @@ define(function (require, exports) {
     exports.set = _set;
     exports.getAll = _getAll;
     exports.get = _get;
-
-    // We could also add a key binding at the same time:
-    //menu.addMenuItem(KARMA_COMMAND_ID, "Ctrl-Alt-H");
-    // (Note: "Ctrl" is automatically mapped to "Cmd" on Mac)
 });

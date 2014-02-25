@@ -23,16 +23,15 @@ define(function () {
         }
     };
 
-
     var toolbarManager = {};
 
     toolbarManager.status = possibleStatus.NOT_RUNNING;
 
-    toolbarManager.createIcon = function() {
+    toolbarManager.createIcon = function () {
 
         $('<a href="#" title="terminal" id="terminal-icon"></a>').appendTo($('#main-toolbar .buttons'));
         this._$icon = $('#terminal-icon');
-        this._$icon.on('click', function (){
+        this._$icon.on('click', function () {
             $(toolbarManager).trigger('click');
         });
         this.setStatus(possibleStatus.NOT_RUNNING);

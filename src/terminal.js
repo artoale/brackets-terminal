@@ -44,8 +44,8 @@ define(function (require, exports, module) {
     terminalProto.handleResize = function handleResize($bashPanel, terminalId) {
         var height,
             width,
-            rows = 100,
-            cols = 140,
+            rows,
+            cols,
             lineHeight,
             fontSize;
 

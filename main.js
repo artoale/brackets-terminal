@@ -16,14 +16,12 @@ define(function (require, exports, module) {
 
 
     var TERMINAL_COMMAND_ID = 'artoale.terminal.open';
+    
     var TERMINAL_SETTINGS_COMMAND_ID = 'artoale.terminal.settings';
 
     var openTerminalCommand = null;
 
     var currentTerminal = null;
-
-
-
 
     var createNewTerminal = function (terminalId) {
         var $terminal = panel.addTab(terminalId);
@@ -36,6 +34,7 @@ define(function (require, exports, module) {
 
     function init() {
         var $terminal;
+        
         toolbarManager.setStatus(toolbarManager.NOT_RUNNING);
         terminalManager.clear();
         terminalManager.startConnection('http://localhost:' + settings.get('port'));
@@ -44,10 +43,9 @@ define(function (require, exports, module) {
             handleAction();
         });
 
-
         $(panel).on('command', function (evt, command) {
-            $terminal = $('.terminal');
             var fontsize = '';
+            $terminal = $('.terminal');
 
             if (command && typeof shortcut[command] === 'function') {
                 shortcut[command]();
@@ -71,7 +69,6 @@ define(function (require, exports, module) {
                 terminalManager.createTerminal();
             }
         });
-
     }
 
     function handleAction() {
@@ -100,6 +97,7 @@ define(function (require, exports, module) {
 
     AppInit.htmlReady(function () {
         ExtensionUtils.loadStyleSheet(module, 'terminal.css');
+        
         openTerminalCommand = CommandManager.register('Show terminal', TERMINAL_COMMAND_ID, function () {
             handleAction();
         });
@@ -110,15 +108,17 @@ define(function (require, exports, module) {
 
         panel.init();
 
-
         $(panel).on('resize', resize);
+        
         $(panel).on('active-tab', function (evt, terminalId) {
             currentTerminal = terminalId;
         });
+        
         $(panel).on('shown', function () {
             openTerminalCommand.setChecked(true);
             $('.terminal').css('font-size', settings.get('fontSize') + 'px');
         });
+        
         $(panel).on('hidden', function () {
             openTerminalCommand.setChecked(false);
         });
@@ -143,6 +143,7 @@ define(function (require, exports, module) {
             toolbarManager.setStatus(toolbarManager.CONNECTED);
             panel.toggle('close');
         });
+        
         $(terminalManager).on('created', function (event, terminalId) {
             createNewTerminal(terminalId);
             first = false;
@@ -161,6 +162,5 @@ define(function (require, exports, module) {
         $(toolbarManager).click(handleAction);
 
         init();
-
     });
 });

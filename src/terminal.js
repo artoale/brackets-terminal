@@ -50,7 +50,7 @@ define(function (require, exports, module) {
             fontSize;
 
         if (this.terminals[terminalId]) {
-            height = $bashPanel.height();
+            height = $bashPanel.outerHeight(true);
             width = $bashPanel.width();
             height -= $bashPanel.find('.toolbar').height() - 12; //5px top/bottom border to remove...+2 security margin :)
             width -= 12; // same here :)

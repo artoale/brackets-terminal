@@ -66,8 +66,11 @@ define(function (require, exports, module) {
         cols = Math.floor(width / fontSize);
 
         this.socket.emit('resize', terminalId, cols, rows);
-        this.terminals[terminalId].resize(cols, rows);
-        this.terminals[terminalId].showCursor(this.terminals[terminalId].x, this.terminals[terminalId].y);
+        
+        if (this.terminals[terminalId]) {
+            this.terminals[terminalId].resize(cols, rows);
+            this.terminals[terminalId].showCursor(this.terminals[terminalId].x, this.terminals[terminalId].y);
+        }
 
     };
     terminalProto.focus = function (terminalId) {

@@ -53,7 +53,7 @@ define(function (require, exports, module) {
             lineHeight,
             fontSize;
 
-        if (this.terminals[terminalId]) {
+        if (this.terminals && this.terminals[terminalId]) {
             height = $bashPanel.height();
             width = $bashPanel.width();
             height -= $bashPanel.find('.toolbar').height() + 10; //5px top/bottom border to remove

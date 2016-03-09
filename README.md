@@ -1,6 +1,10 @@
 Brackets Terminal
 =================
 
+#MAINTEINER NEEDED
+I no longer use brackets as my day-to-day editor and  I'm not able to maintain this plugin anymore. I'll be happy to grant access to someone interest in doing so though - if you'd like to help, open an issue :)
+
+
 Ever wanted a real console inside your editor? This plugin is what you need!
 
 ![general screenshot](images/screenshot_1.png)

@@ -2,7 +2,8 @@ define(function (require, exports, module) {
     'use strict';
 
     /* Brackets dependencies */
-    var PanelManager = brackets.getModule('view/PanelManager'),
+    var WorkspaceManager = brackets.getModule('view/WorkspaceManager'),
+        Mustache = brackets.getModule('thirdparty/mustache/mustache'),
 
         /* Internal dependencies */
         tabTemplate = require('text!htmlContent/tab-header.html'),
@@ -16,7 +17,7 @@ define(function (require, exports, module) {
             exportObj = {};
 
         var _createPanel = function () {
-            _brPanel = PanelManager.createBottomPanel('bash.terminal', $(panelTemplate), 100);
+            _brPanel = WorkspaceManager.createBottomPanel('bash.terminal', $(panelTemplate), 100);
             exportObj.$panel = _$panel = _brPanel.$panel;
         };
 

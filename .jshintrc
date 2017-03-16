@@ -21,7 +21,6 @@
   "globals": {
     "define": false,
     "brackets": false,
-    "Mustache": false,
     "$": false
   }
 }

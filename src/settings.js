@@ -2,23 +2,63 @@ define(function (require, exports) {
     'use strict';
 
     var PreferencesManager = brackets.getModule('preferences/PreferencesManager'),
+        Mustache = brackets.getModule('thirdparty/mustache/mustache'),
         Dialogs = brackets.getModule('widgets/Dialogs'),
         dialogTemplate = require('text!htmlContent/settings-dialog.html');
 
-    var TERMINAL_SETTINGS_CLIENT_ID = 'bracketsTerminal.settings';
-
-    var settings;
+    var TERMINAL_SETTINGS_CLIENT_ID = 'bracketsTerminal',
+        SETTINGS = 'settings';
     
     var defaults = {
         port: 8080,
         fontSize: 15
     };
 
-    var storage;
+    var prefs = PreferencesManager.getExtensionPrefs(TERMINAL_SETTINGS_CLIENT_ID);
+    prefs.definePreference('settings', 'object', undefined, {
+        keys: {
+            port: {
+                type: 'number',
+                initial: defaults.port
+            },
+            fontSize: {
+                type: 'number',
+                initial: defaults.fontSize
+            }
+        }
+    });
+    
+    function _getAllValues() {
+        var settings = prefs.get(SETTINGS) || defaults;
+        
+        Object.keys(defaults).forEach(function (key) {
+            var value = settings[key];
+            if (typeof value === 'undefined') {
+                value = defaults[key];
+            }
+            settings[key] = value;
+        });
+
+        return settings;
+    }
+    
+    function _setAllValues(newSettings) {
+        var oldSettings = prefs.get(SETTINGS);
+        
+        Object.keys(defaults).forEach(function (key) {
+            var value = newSettings[key];
+            if (typeof value === 'undefined') {
+                newSettings[key] = oldSettings[key];
+            }
+        });
+
+        prefs.set(SETTINGS, newSettings);
+    }
+    
+    var settings;
 
     var _init = function () {
-        storage = PreferencesManager.getPreferenceStorage(TERMINAL_SETTINGS_CLIENT_ID, defaults);
-        settings = storage.getAllValues();
+        settings = _getAllValues();
     };
 
     var _handleSave = function () {
@@ -26,8 +66,8 @@ define(function (require, exports) {
         inputValues.forEach(function (configElement) {
             settings[configElement.name] = configElement.value;
         });
-        storage.setAllValues(settings);
-        settings = storage.getAllValues();
+        _setAllValues(settings);
+        settings = _getAllValues();
         $('#brackets-terminal-save').off('click', _handleSave);
     };
 
@@ -38,8 +78,8 @@ define(function (require, exports) {
 
     var _set = function (key, value) {
         settings[key] = value;
-        storage.setAllValues(settings);
-        settings = storage.getAllValues();
+        _setAllValues(settings);
+        settings = _getAllValues();
     };
 
     var _getAll = function () {

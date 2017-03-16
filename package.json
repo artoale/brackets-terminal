@@ -14,6 +14,6 @@
     "author": "Alessandro Artoni <artoale@gmail.com> (http://artoale.com)",
     "license": "MIT",
     "engines": {
-        "brackets": ">=0.31.0"
+        "brackets": "^1.8.0"
     }
 }
